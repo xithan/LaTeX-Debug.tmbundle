@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>autoScrollOutput</key>
+	<true/>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>command</key>
+	<string>#!/usr/bin/env ruby -wKU
+
+require ENV["TM_SUPPORT_PATH"] + "/lib/tm/process"
+require ENV["TM_SUPPORT_PATH"] + "/lib/tm/htmloutput"
+require ENV["TM_SUPPORT_PATH"] + "/lib/tm/save_current_document"
+require ENV["TM_SUPPORT_PATH"] + "/lib/tm/require_cmd"
+
+
+TextMate.require_cmd("kpsewhich")
+
+watchScript = ENV["TM_BUNDLE_SUPPORT"] + "/bin/latex_watch.pl"
+filename = ENV["TM_LATEX_MASTER"] ? ENV["TM_LATEX_MASTER"] : ENV["TM_FILEPATH"]
+filename = "/Users/drkuehl/Dropbox/Doktorarbeit/TsoReordered/Thesis/liveview.tex"
+TextMate::HTMLOutput.show(:title =&gt; "Watching “#{ENV["TM_DISPLAYNAME"] || File.basename(ENV["TM_FILEPATH"])}”…", :sub_title =&gt; "WatchDocument") do |io|
+  TextMate::Process.run(watchScript,"#{filename}","--textmate-pid=#{ENV["TM_PID"]}" ) do |line|
+    io &lt;&lt; line
+  end
+end
+::Process.exit($?.exitstatus)
+
+
+</string>
+	<key>input</key>
+	<string>none</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>keyEquivalent</key>
+	<string>^@w</string>
+	<key>name</key>
+	<string>Watch document</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>html</string>
+	<key>outputLocation</key>
+	<string>newWindow</string>
+	<key>scope</key>
+	<string>text.tex.latex</string>
+	<key>uuid</key>
+	<string>039EF022-AD9A-4E70-83AC-E1793B5BF6E3</string>
+	<key>version</key>
+	<integer>2</integer>
+</dict>
+</plist>
