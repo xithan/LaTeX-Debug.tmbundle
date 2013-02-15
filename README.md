@@ -1,12 +1,12 @@
-LaTeX-Debug.tmbundle
-====================
+### LaTeX-Debug.tmbundle
 
 This is a bundle for Textmate containg the two commands "Watch document" and "Typeset &amp; View" from Textmate's 
 LaTeX bundle. I made some changes to make it easier to track down LaTeX errors. 
-It's honestly a bunch of dirty hacks and crys for cosmetic improvements but it's functional and, in my opinion, very useful.
+It's honestly a bunch of dirty hacks and crys for cosmetic improvements but it's functional and, in my opinion, very useful
+especially if you use "Watch document" a lot.
 
-Added features
-==============
+### Added features
+
 I replaced the (not very helpful) error message dialog, that "Watch document" used to show when something went wrong,
 with the HTML window with explicit error messages that "Typeset &amp; View" uses.
 
