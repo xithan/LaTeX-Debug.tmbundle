@@ -146,7 +146,7 @@ class LaTexParser(TexParser):
             (re.compile('([^:]*):(\d+): LaTeX Error:(.*)') , self.handleError),
             (re.compile('([^:]*):(\d+): (Emergency stop)') , self.handleError),
             (re.compile('Runaway argument') , self.pdfLatexError),            
-            (re.compile('Transcript written on (.*)\.$') , self.finishRun),
+            (re.compile('(:?Sync.*)?Transcript written on (.*)\.') , self.finishRun),
             (re.compile('^Error: pdflatex') , self.pdfLatexError),
             (re.compile('\!.*') , self.myHandleOldStyleErrors),
             (re.compile('^\s+==>') , self.fatal)
