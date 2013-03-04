@@ -24,7 +24,7 @@ TextMate::HTMLOutput.show(:title =&gt; "Watching “#{ENV["TM_DISPLAYNAME"] || F
     io &lt;&lt; line
   end
 end
-::Process.exit($?.exitstatus)
+#TextMate::Process.exit($?.exitstatus)
 
 
 </string>

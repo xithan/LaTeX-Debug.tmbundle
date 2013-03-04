@@ -94,7 +94,7 @@
 
 .warning {
  color: #FF7F00;
- margin-left: 20px; 
+ margin-left: 0px; 
 }
 .phi p.warning a {
  color: #FF7F00;
@@ -104,7 +104,7 @@
 }
 .error {
  color: red;
- margin-left: 20px;
+ margin-left: 0px;
 }
 .phi div#commandOutput {
     background-color: rgb(240,240,240);

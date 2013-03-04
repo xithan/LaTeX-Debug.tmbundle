@@ -146,7 +146,7 @@ class LaTexParser(TexParser):
             (re.compile('([^:]*):(\d+): LaTeX Error:(.*)') , self.handleError),
             (re.compile('([^:]*):(\d+): (Emergency stop)') , self.handleError),
             (re.compile('Runaway argument') , self.pdfLatexError),            
-            (re.compile('(:?Sync.*)?Transcript written on (.*)\.') , self.finishRun),
+            (re.compile('Transcript written on (.*)\.$') , self.finishRun),
             (re.compile('^Error: pdflatex') , self.pdfLatexError),
             (re.compile('\!.*') , self.myHandleOldStyleErrors),
             (re.compile('^\s+==>') , self.fatal)
@@ -216,22 +216,23 @@ class LaTexParser(TexParser):
         self.numErrs += 1
     
     def myHandleError(self,m,line,nextline):
-      
         print '<p class="error">'
-        if re.search('Undefined control sequence', m.group(3)):
+        
+        line = m.group(3)
+        if re.search('Undefined control sequence', line):
             match = re.search(r'\\\w+$',nextline)
             if match:
-                nextline = ' ' + match.group(0)
+                line = "Undefined control sequence: " + match.group(0)
         if nextline and not len(nextline.strip()) > 0:
-            nextline = ': ' + nextline
-        
+            line = line + ': ' + nextline
+            
         # Verschiebung nach oben war notwendig als es noch das fixierte Banner gab
         #print '<a name="error%d" style="position:relative; top:-75px;">&nbsp;</a><a href="#error%d" style="text-decoration:none;">Latex Error:</a>' % (self.numErrs, self.numErrs + 1)
         print '<a href="#error%d" style="text-decoration:none;">Error Latex:</a><a name="error%d"  style="position:relative; top:-10px;">&nbsp;</a>' % (self.numErrs + 1, self.numErrs)
         print ' <a id="errorlink%d"' % self.numErrs
         file = re.sub("\./","",m.group(1))
         link = re.sub("%2F","/",make_link(os.path.join(os.getcwd(),file),m.group(2)))
-        print 'href="' + link +  '">' + m.group(1)+":"+m.group(2) + '</a> '+m.group(3) + nextline +'</p>'
+        print 'href="' + link +  '">' + m.group(1)+":"+m.group(2) + '</a> '+ line +'</p>'
         self.numErrs += 1
     
         
@@ -275,8 +276,8 @@ class LaTexParser(TexParser):
         
     def pdfLatexError(self,m,line):
         """docstring for pdfLatexError"""
-        self.numErrs += 1
         print '<p class="error">'
+        #print '<a href="#error%d" style="text-decoration:none;">Error pdfLatex:</a><a name="error%d"  style="position:relative; top:-10px;">&nbsp;</a>' % (self.numErrs + 1, self.numErrs)
         print line
         line = self.input_stream.readline()
         if line and re.match('^ ==> Fatal error occurred', line):  
@@ -286,7 +287,8 @@ class LaTexParser(TexParser):
         else:
             if line:
                 print '<pre>    '+ line.rstrip("\n") + '</pre>'
-            print '</p>'
+            print '</p>'    
+        #self.numErrs += 1 # Nicht mitzaehlen. Da diese Fehler keinen Link haben, funktioniert sonst der Pfeil-Button nicht.
         sys.stdout.flush()
     
     def badRun(self):
@@ -329,15 +331,17 @@ class WatchDocumentParser(LaTexParser):
         ]
         self.blankLine = re.compile(r'^\s*$')  
         #print '<div id="watchdocument">'
+        
+        
     def myHandleError(self,m,line,nextline):
-      
         print '<p class="error">'
-        if re.search('Undefined control sequence', m.group(3)):
+        line = m.group(3)
+        if re.search('Undefined control sequence', line):
             match = re.search(r'\\\w+$',nextline)
             if match:
-                nextline = ' ' + match.group(0)
+                line = "Undefined control sequence: " + match.group(0)
         if nextline and not len(nextline.strip()) > 0:
-            nextline = ': ' + nextline
+            line = line + ': ' + nextline
         
         # Verschiebung nach oben war notwendig als es noch das fixierte Banner gab
         #print '<a name="error%d" style="position:relative; top:-75px;">&nbsp;</a><a href="#error%d" style="text-decoration:none;">Latex Error:</a>' % (self.numErrs, self.numErrs + 1)
@@ -348,7 +352,7 @@ class WatchDocumentParser(LaTexParser):
         #print 'href="' + make_link(os.path.join(os.getcwd(),file),m.group(2)) +  '">' + file+":"+m.group(2) + ':</a> '+m.group(3)+ nextline + '</p>'
         link = re.sub("%2F","/",make_link(os.path.join(os.getcwd(),file),m.group(2)))
 #        link = "txmt://open?url=file:///Users/drkuehl/Dropbox/Doktorarbeit/TsoReordered/Thesis/level2b.tex"
-        print 'href="' + link +  '">' + file+":"+m.group(2) + ':</a> '+m.group(3)+ nextline + '</p>'
+        print 'href="' + link +  '">' + file+":"+m.group(2) + ':</a> '+ line + '</p>'
         #print 'href="' + make_link(os.path.join(os.getcwd(),m.group(1)),m.group(2)) +  '">' + m.group(1)+":"+m.group(2) + '</a> '+m.group(3) + nextline +'</p>'
         self.numErrs += 1
     
