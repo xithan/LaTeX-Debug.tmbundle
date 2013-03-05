@@ -215,6 +215,10 @@ class LaTexParser(TexParser):
         print 'Latex Error: <a  href="' + make_link(os.path.join(os.getcwd(),m.group(1)),m.group(2)) +  '">' + m.group(1)+":"+m.group(2) + '</a> '+m.group(3)+'</p>'
         self.numErrs += 1
     
+    
+    def getFileName(self, line):
+        return re.sub("\./","",line)
+    
     def myHandleError(self,m,line,nextline):
         print '<p class="error">'
         
@@ -223,18 +227,17 @@ class LaTexParser(TexParser):
             match = re.search(r'\\\w+$',nextline)
             if match:
                 line = "Undefined control sequence: " + match.group(0)
-        if nextline and not len(nextline.strip()) > 0:
-            line = line + ': ' + nextline
-            
+            elif nextline and len(nextline.strip()) > 0:
+                line = "Undefined control sequence: " + nextline
         # Verschiebung nach oben war notwendig als es noch das fixierte Banner gab
         #print '<a name="error%d" style="position:relative; top:-75px;">&nbsp;</a><a href="#error%d" style="text-decoration:none;">Latex Error:</a>' % (self.numErrs, self.numErrs + 1)
         print '<a href="#error%d" style="text-decoration:none;">Error Latex:</a><a name="error%d"  style="position:relative; top:-10px;">&nbsp;</a>' % (self.numErrs + 1, self.numErrs)
         print ' <a id="errorlink%d"' % self.numErrs
-        file = re.sub("\./","",m.group(1))
+        file = self.getFileName(m.group(1))
         link = re.sub("%2F","/",make_link(os.path.join(os.getcwd(),file),m.group(2)))
-        print 'href="' + link +  '">' + m.group(1)+":"+m.group(2) + '</a> '+ line +'</p>'
+        print 'href="' + link +  '">' + file +":"+m.group(2) + '</a> '+ line +'</p>'
         self.numErrs += 1
-    
+        
         
     def finishRun(self,m,line):
         logFile = m.group(1).strip('"')
@@ -332,29 +335,11 @@ class WatchDocumentParser(LaTexParser):
         self.blankLine = re.compile(r'^\s*$')  
         #print '<div id="watchdocument">'
         
+    def getFileName(self, line):
+        file = re.sub("\.?(\w+)\.(?:ini|tex)","\\1.tex", line)
+        return re.sub("\./","",file)
         
-    def myHandleError(self,m,line,nextline):
-        print '<p class="error">'
-        line = m.group(3)
-        if re.search('Undefined control sequence', line):
-            match = re.search(r'\\\w+$',nextline)
-            if match:
-                line = "Undefined control sequence: " + match.group(0)
-        if nextline and not len(nextline.strip()) > 0:
-            line = line + ': ' + nextline
-        
-        # Verschiebung nach oben war notwendig als es noch das fixierte Banner gab
-        #print '<a name="error%d" style="position:relative; top:-75px;">&nbsp;</a><a href="#error%d" style="text-decoration:none;">Latex Error:</a>' % (self.numErrs, self.numErrs + 1)
-        print '<a href="#error%d" style="text-decoration:none;">Error Latex:</a><a name="error%d"  style="position:relative; top:-10px;">&nbsp;</a>' % (self.numErrs + 1, self.numErrs)
-        print ' <a id="errorlink%d"' % self.numErrs
-        file =re.sub("\.?(\w+)\.(?:ini|tex)","\\1.tex", m.group(1))
-        file = re.sub("\./","",file)
-        #print 'href="' + make_link(os.path.join(os.getcwd(),file),m.group(2)) +  '">' + file+":"+m.group(2) + ':</a> '+m.group(3)+ nextline + '</p>'
-        link = re.sub("%2F","/",make_link(os.path.join(os.getcwd(),file),m.group(2)))
-#        link = "txmt://open?url=file:///Users/drkuehl/Dropbox/Doktorarbeit/TsoReordered/Thesis/level2b.tex"
-        print 'href="' + link +  '">' + file+":"+m.group(2) + ':</a> '+ line + '</p>'
-        #print 'href="' + make_link(os.path.join(os.getcwd(),m.group(1)),m.group(2)) +  '">' + m.group(1)+":"+m.group(2) + '</a> '+m.group(3) + nextline +'</p>'
-        self.numErrs += 1
+
     
     def badRun(self): # Tritt auf wenn nur die Preambel compiliert wird
         """docstring for finishRun"""
