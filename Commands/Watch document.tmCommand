@@ -19,11 +19,13 @@ TextMate.require_cmd("kpsewhich")
 
 watchScript = ENV["TM_BUNDLE_SUPPORT"] + "/bin/latex_watch.pl"
 filename = ENV["TM_PROJECT_MASTER"] ? "#{ENV["TM_PROJECT_DIRECTORY"]}/#{ENV["TM_PROJECT_MASTER"]}" : ENV["TM_LATEX_MASTER"] || ENV["TM_FILEPATH"]
+
 TextMate::HTMLOutput.show(:title =&gt; "Watching “#{ENV["TM_DISPLAYNAME"] || File.basename(ENV["TM_FILEPATH"])}”…", :sub_title =&gt; "WatchDocument") do |io|
   TextMate::Process.run(watchScript,"#{filename}","--textmate-pid=#{ENV["TM_PID"]}" ) do |line|
     io &lt;&lt; line
   end
 end
+
 #TextMate::Process.exit($?.exitstatus)
 
 

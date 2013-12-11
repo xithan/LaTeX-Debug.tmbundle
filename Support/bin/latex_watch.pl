@@ -26,6 +26,7 @@ use File::Copy 'copy';
 use Getopt::Long qw(GetOptions :config no_auto_abbrev bundling);
 
 
+
 #############
 # Configure #
 #############
@@ -181,7 +182,7 @@ sub parse_file_path {
 		my $fullname = $';
 		if ($fullname =~ /\.tex\z/) {
 			$name = $`;
-			$dotname = ".$name";
+            $dotname = ".$name";
 			$dotname =~ y/\01-\040"\\$%&/_/;    # Any other chars that cause problems?
 		}
 		else {
@@ -403,10 +404,10 @@ sub regenerate_format {
 
 	copy("$wd/$name.bbl", "$wd/$dotname.bbl"); # Ignore errors
 	unlink("$wd/$dotname.fmt"); # Ignore errors
-
 	fail_unless_system(@tex, "-ini",
-		-interaction => "batchmode",
+		-interaction => "batchmode", "-synctex=1",
 		"-recorder", "-file-line-error","&".$base_format,  #+(be silent) added "-file-line-error"
+        #-fmt => "$dotname", # Vielleicht braucht man das hier auch
 		qq("$wd/$dotname.ini"),
 	sub {
 		#+ be silent
@@ -500,7 +501,7 @@ sub compile {
 	unlink "$wd/$dotname.dvi";
 	my $error = 0;
 	fail_unless_system(@tex,
-		-interaction => "batchmode",
+		-interaction => "batchmode", "-synctex=1",
 		"-recorder", "-file-line-error", #+(be silent) added -file-line-error
 		-fmt => "$dotname", 
 		qq("$wd/$dotname.tex"),  
@@ -549,6 +550,7 @@ sub compile {
 		if (-e "$wd/$dotname.pdf") {
 			
 			munge_pdfsync_file() if -e "$wd/$dotname.pdfsync";
+            munge_synctex_file() if -e "$wd/$dotname.synctex.gz";
 			rename("$wd/$dotname.pdf", "$wd/$name.pdf");
 			$compiled_document      = "$wd/$name.pdf";
 			$compiled_document_name = "$name.pdf";
@@ -573,6 +575,23 @@ sub munge_pdfsync_file {
 	open ($f, ">", "$wd/$name.pdfsync")
 		or fail("Failed to open pdfsync file",
 			"I failed to write to the file $name.pdfsync: $!");
+	print $f $contents;
+	close $f;
+}
+
+sub munge_synctex_file {
+	my $contents;
+	open(my $f, "<", "$wd/$dotname.synctex.gz")
+		or fail("Failed to open synctex.gz file",
+			"I failed to read the file $dotname.synctex.gz: $!");
+	for (my $n=0; my $c = read($f, $contents, 4096, $n); $n += $c) { }
+	close $f;
+	
+	$contents =~ s/^(\(?)\Q$dotname\E((\.tex)?)$/$1$name$2/mg;
+	
+	open ($f, ">", "$wd/$name.synctex.gz")
+		or fail("Failed to open synctex.gz file",
+			"I failed to write to the file $name.synctex.gz: $!");
 	print $f $contents;
 	close $f;
 }
@@ -923,6 +942,7 @@ sub fail_unless_system {
 	debug_msg("Executi;debugging ", @_);
 
 	#be silent 
+    #print(@_);
 	print "<!--";
 	system(@_);
 	print "-->";
