@@ -2,7 +2,7 @@
 
 This is a bundle for Textmate containing the two commands "Watch document" and "Typeset &amp; View" from Textmate's 
 LaTeX bundle. I made some changes to make it easier to track down LaTeX errors. 
-It's honestly a bunch of dirty hacks (e.g. it uses JavaScript to update the HTML view) but it's functional and, in my opinion, very useful
+It's honestly a bunch of dirty hacks but it's functional and, in my opinion, very useful
 especially if you use "Watch document" a lot.
 
 ### Added features
